@@ -21,7 +21,7 @@ class TwoAxisStage:
 
     def __init__(self, port, baud, startupfile):
         self.s = None
-        self.window = tk.Tk()
+        self.window = tk.Toplevel()
         self.window.title('Stage Control')
         self.pos = [0., 0.]
         self.currentpos = 'X0 Y0'
@@ -83,9 +83,13 @@ class TwoAxisStage:
         self.btn_d['font'] = font.Font(size=18)
         self.btn_d.grid(row=2, column=3, sticky="nsew")
 
+        # # serial connect button
+        # self.connect_btn = tk.Button(master=self.window, text='connect', fg='red',
+        #                              command=lambda: self.initSerial(self.port, self.baud, self.startupfile))
+        # self.connect_btn.grid(row=1, column=5, sticky='nsew')
+
         # serial connect button
-        self.connect_btn = tk.Button(master=self.window, text='connect', fg='red',
-                                     command=lambda: self.initSerial(self.port, self.baud, self.startupfile))
+        self.connect_btn = tk.Button(master=self.window)
         self.connect_btn.grid(row=1, column=5, sticky='nsew')
 
         # 10 button
@@ -193,6 +197,11 @@ class TwoAxisStage:
         self.window.mainloop()
 
     def stop(self):
+        self.connected = False
+        self.s.close()
+        self.s = None
+        self.queue = None
+        print('Connection closed')
         self.window.destroy()
 
     def __on_closing(self):
@@ -357,7 +366,7 @@ class TwoAxisStage:
                         l = line.strip()
                         self.sendCommand(l + '\r')
                 print('Connected to GRBL')
-                self.connect_btn.configure(fg='green', text='Connected')
+                # self.connect_btn.configure(fg='green', text='Connected')
                 self.connected = True
                 self.__parseParameters()
 
