@@ -190,10 +190,16 @@ class TwoAxisStage:
         self.Refresh()
         self.window.protocol("WM_DELETE_WINDOW", self.__on_closing)
         self.initSerial(self.port, self.baud, self.startupfile)
-        self.window.geometry('800x400+%d+%d' % (self.window.winfo_screenwidth() / 4 + 810,
+        self.window.geometry('800x400+%d+%d' % (self.window.winfo_screenwidth() / 4,
                                                 self.window.winfo_screenheight() / 5))
 
+        self.window.bind('<Up>', self.moveup)
+        self.window.bind('<Down>', self.movedown)
+        self.window.bind('<Left>', self.moveleft)
+        self.window.bind('<Right>', self.moveright)
+
     def start(self):
+
         self.window.mainloop()
 
     def stop(self):
@@ -236,7 +242,7 @@ class TwoAxisStage:
         else:
             return False
 
-    def onKeyPress(self, event, wasd=False):
+    def onKeyPress(self, event):
         """
         Allows for stage control via WASD - Not sure if keeping implementation
 
@@ -244,15 +250,27 @@ class TwoAxisStage:
         :param wasd: if True, wasd controls the stage
         :return: None
         """
-        if wasd:
-            if event.char.lower() == 'w':
-                self.jogY(self.rate)
-            elif event.char.lower() == 'a':
-                self.jogX(-1 * self.rate)
-            elif event.char.lower() == 's':
-                self.jogY(-1 * self.rate)
-            elif event.char.lower() == 'd':
-                self.jogX(self.rate)
+        print(event.char)
+        if event.char.lower() == '<up>':
+            self.jogY(self.rate)
+        elif event.char.lower() == '<left>':
+            self.jogX(-1 * self.rate)
+        elif event.char.lower() == '<down>':
+            self.jogY(-1 * self.rate)
+        elif event.char.lower() == '<right>':
+            self.jogX(self.rate)
+
+    def moveup(self, event):
+        self.jogY(self.rate)
+
+    def movedown(self, event):
+        self.jogY((-1*self.rate))
+
+    def moveleft(self, event):
+        self.jogX(-1*self.rate)
+
+    def moveright(self, event):
+        self.jogX(self.rate)
 
     def jogX(self, v):
         """
@@ -436,43 +454,6 @@ class TwoAxisStage:
         self.output.insert('end', text)
         self.output.yview(tk.END)
 
-    def killSwitch(self):
-        """
-        effectively kills current gcode run by clearing queue. Note this isn't instantaneous
-
-        :return: None
-        """
-        if self.s:
-            self.queue.clear()
-            self.temprunning = False
-            self.output.insert('end', '\n' + '!> ' + 'Current motion killed')
-            self.output.yview(tk.END)
-
-    def calcDelay(self, currentpos, nextpos):
-        """
-        Calculates a lower end of the required delay between moved for the queue command system
-
-        :param currentpos: Current position
-        :param nextpos: Next position
-        :return: time delay in ms
-        """
-        #   todo: parse feeds & speeds from startup file
-        #         calculate (approximate?) time delay until next step
-        #         circular motion
-
-        ipos = self.__parsePosition(currentpos)
-        fpos = self.__parsePosition(nextpos)
-        assert len(ipos) == len(fpos), 'Input arrays must be same length'
-
-        v = float(self.parameters['xMaxRate'][1]) / 60
-        a = float(self.parameters['xMaxRate'][1])  # becomes very choppy changing to xMaxAcc... idk wtf
-
-        delta = list(ipos[i] - fpos[i] for i in range(len(ipos)))
-        d = np.sqrt(sum(i ** 2 for i in delta))
-        deltaT = ((2 * v) / a) + ((d - (v ** 2 / a)) / v)
-        print('next move in ' + str(int(np.floor(deltaT * 1000))) + 'ms')
-        return int(np.floor(deltaT * 1000))  # in ms
-
     def __parsePosition(self, ipos):
         """
         Parses position for use with DRO
@@ -507,26 +488,6 @@ class TwoAxisStage:
 
         self.feedrate = int(self.parameters['xMaxRate'][1])
 
-    def __blinkButton(self, button, c1, c2, delay):
-        """
-        Blinks a button between two colors, c1 and c2. Has logic for specific buttons to cease switching given a
-        specific string as the text.
-
-        :param button: target button instance
-        :param c1: First color to switch to, string
-        :param c2: Second color to switch to, string
-        :param delay: Delay in ms
-        :return: None
-        """
-        if button['text'] == 'Start?':
-            return
-        else:
-            if button['fg'] == c1:
-                button.configure(fg=c2)
-            else:
-                button.configure(fg=c1)
-            self.window.after(delay, lambda: self.__blinkButton(button, c1, c2, delay))
-
     def getStageParameters(self):
         return self.parameters
 
@@ -538,6 +499,61 @@ class TwoAxisStage:
         :return: None
         """
         self.feedrate = feedrate
+
+    # def __blinkButton(self, button, c1, c2, delay):
+    #     """
+    #     Blinks a button between two colors, c1 and c2. Has logic for specific buttons to cease switching given a
+    #     specific string as the text.
+    #
+    #     :param button: target button instance
+    #     :param c1: First color to switch to, string
+    #     :param c2: Second color to switch to, string
+    #     :param delay: Delay in ms
+    #     :return: None
+    #     """
+    #     if button['text'] == 'Start?':
+    #         return
+    #     else:
+    #         if button['fg'] == c1:
+    #             button.configure(fg=c2)
+    #         else:
+    #             button.configure(fg=c1)
+    #         self.window.after(delay, lambda: self.__blinkButton(button, c1, c2, delay))
+
+    # def calcDelay(self, currentpos, nextpos):
+    #     """
+    #     Calculates a lower end of the required delay between moved for the queue command system
+    #
+    #     :param currentpos: Current position
+    #     :param nextpos: Next position
+    #     :return: time delay in ms
+    #     """
+    #
+    #     ipos = self.__parsePosition(currentpos)
+    #     fpos = self.__parsePosition(nextpos)
+    #     assert len(ipos) == len(fpos), 'Input arrays must be same length'
+    #
+    #     v = float(self.parameters['xMaxRate'][1]) / 60
+    #     a = float(self.parameters['xMaxRate'][1])  # becomes very choppy changing to xMaxAcc... idk wtf
+    #
+    #     delta = list(ipos[i] - fpos[i] for i in range(len(ipos)))
+    #     d = np.sqrt(sum(i ** 2 for i in delta))
+    #     deltaT = ((2 * v) / a) + ((d - (v ** 2 / a)) / v)
+    #     print('next move in ' + str(int(np.floor(deltaT * 1000))) + 'ms')
+    #     return int(np.floor(deltaT * 1000))  # in ms
+
+    # def killSwitch(self):
+    #     """
+    #     effectively kills current gcode run by clearing queue. Note this isn't instantaneous
+    #
+    #     :return: None
+    #     """
+    #     if self.s:
+    #         self.queue.clear()
+    #         self.temprunning = False
+    #         self.output.insert('end', '\n' + '!> ' + 'Current motion killed')
+    #         self.output.yview(tk.END)
+
 
     # def getFile(self, filename):
     #     """
