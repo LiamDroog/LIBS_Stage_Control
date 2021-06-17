@@ -1,3 +1,6 @@
+; File used to set parameters of the stage. Not a comprehensive list, but it covers what we need for our stage
+; Don't leave any blank lines, otherwise the parser will throw a fit.
+;
 ; step pulse length (μs)
 $0=10
 ; step idle delay (ms)
