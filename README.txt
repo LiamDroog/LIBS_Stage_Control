@@ -6,6 +6,7 @@ Information for utilizing the stage control program
 # Email:    droog@ualberta.ca
 # Year:     2021
 # Version:  V.1.0.0
+# Python:   3.8.10
 ###################################################
 
 Launching from somewhere other than parent directory:
@@ -15,10 +16,13 @@ Launching from somewhere other than parent directory:
 
 First installation steps:
 
-    Upon first installation, open a terminal window in the /LIBS_Stage_Control directory and run
-    # pip install -r Requirements.txt
-    You'll need to install h5py separately for python 3.8.10 because we can't have nice things.
+    Upon first installation, run Install_Requirements.bat to install necessary py packages.
+
+    You might need to install h5py separately for python 3.8.10 because we can't have nice things.
     Either by whl or by pip it should work. If not, manually install everything until something breaks
+
+    Check if there is a USB-SERIAL CH340 under ports (COM & LPT) in Device Manager. If not, you need to install
+    the ch340 usb driver
 
 From there, connect the stage control and to the computer via USB, and to power (12v/ max 4A).
 

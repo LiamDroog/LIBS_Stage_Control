@@ -199,7 +199,6 @@ class TwoAxisStage:
         self.window.bind('<Right>', self.moveright)
 
     def start(self):
-
         self.window.mainloop()
 
     def stop(self):
@@ -250,7 +249,6 @@ class TwoAxisStage:
         :param wasd: if True, wasd controls the stage
         :return: None
         """
-        print(event.char)
         if event.char.lower() == '<up>':
             self.jogY(self.rate)
         elif event.char.lower() == '<left>':
