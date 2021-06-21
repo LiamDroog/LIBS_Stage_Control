@@ -11,6 +11,7 @@ import numpy as np
 import os
 import h5py
 from QueueClass import Queue
+import multiprocessing as mp
 
 
 class TwoAxisStage:
@@ -196,6 +197,7 @@ class TwoAxisStage:
         self.window.bind('<Down>', self.movedown)
         self.window.bind('<Left>', self.moveleft)
         self.window.bind('<Right>', self.moveright)
+
 
     def start(self):
         self.window.mainloop()
@@ -499,7 +501,10 @@ class TwoAxisStage:
 
     def help(self):
         cwd = os.getcwd()
-        os.system(os.path.join(cwd, 'Config/Help.txt'))
+        p = mp.Process(target=os.system, args=(os.path.join(cwd, 'Config/Help.txt'),))
+        p.start()
+        # os.system(os.path.join(cwd, 'Config/Help.txt'))
+
 
     # def __blinkButton(self, button, c1, c2, delay):
     #     """

@@ -1,6 +1,7 @@
 import tkinter as tk
 from StageClass import TwoAxisStage
 import serial.tools.list_ports
+import os
 
 
 class StageLauncher:
@@ -8,6 +9,7 @@ class StageLauncher:
         # Stuff for launching stage
         self.window = tk.Tk(className='Launcher')
         self.stage = None
+        self.cfg_file = 'Config/stageconfig.cfg'
         # configure grid for widget layout
         self.grid = [5, 2]
         self.rowarr = list(i for i in range(self.grid[0]))
@@ -54,9 +56,12 @@ class StageLauncher:
         self.startfile.grid(row=3, column=1, sticky='ew')
 
         self.window.protocol("WM_DELETE_WINDOW", self.__onclosing)
+
+        self.getConfig()
         self.window.mainloop()
 
     def __onclosing(self):
+        self.saveConfig()
         self.window.destroy()
 
     def __startStage(self):
@@ -65,6 +70,28 @@ class StageLauncher:
         except Exception as e:
             self.stagelabel.config(text='Could not start stage', fg='Red')
             print(e)
-            self.window.after(5000, lambda : self.stagelabel.config(text='Stage Control Launcher', fg='Black'))
+            self.window.after(5000, lambda: self.stagelabel.config(text='Stage Control Launcher', fg='Black'))
+
+    def getConfig(self):
+        if os.path.exists(self.cfg_file):
+            with open(self.cfg_file, 'r') as f:
+                for i in f:
+                    i = i.rstrip().split(':')
+                    print(i)
+                    if i[0] == 'com':
+                        self.comval.set(i[1])
+                    elif i[0] == 'baud':
+                        self.baudval.set(int(i[1]))
+                    elif i[0] == 'startfile':
+                        self.startfile.delete(0, tk.END)
+                        self.startfile.insert(0, i[1])
+
+    def saveConfig(self):
+        with open(self.cfg_file, 'w+') as f:
+            if self.comval.get()[:3] == 'COM':
+                f.write('com:' + str(self.comval.get()) + '\n')
+            f.write('baud:' + str(self.baudval.get()) + '\n')
+            f.write('startfile:' + str(self.startfile.get()))
+
 if __name__ == '__main__':
     StageLauncher()
