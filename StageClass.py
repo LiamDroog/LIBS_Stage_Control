@@ -174,10 +174,9 @@ class TwoAxisStage:
         self.set_home.grid(row=1, column=4, sticky='nsew')
         self.set_home.configure(width=self.buttonx, height=self.buttony)
 
-        # self.start_from_death_btn = tk.Button(master=self.window, text='No temp\nfile found')
-        # self.start_from_death_btn.grid(row=2, column=5, sticky='nesw')
-        # self.start_from_death_btn['font'] = font.Font(size=10)
-        # self.start_from_death_btn.configure(width=self.buttonx, height=self.buttony)
+        self.help_button = tk.Button(master=self.window, text='Help', command=self.help)
+        self.help_button.grid(row=2, column=5, sticky='nesw')
+        self.help_button.configure(width=self.buttonx, height=self.buttony)
 
         self.output = tk.Listbox(master=self.window)
         self.output.grid(columnspan=4, rowspan=self.grid[1] - 6, row=1, column=6, sticky='nsew')
@@ -497,6 +496,10 @@ class TwoAxisStage:
         :return: None
         """
         self.feedrate = feedrate
+
+    def help(self):
+        cwd = os.getcwd()
+        os.system(os.path.join(cwd, 'Config/Help.txt'))
 
     # def __blinkButton(self, button, c1, c2, delay):
     #     """
