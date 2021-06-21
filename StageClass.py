@@ -501,7 +501,7 @@ class TwoAxisStage:
 
     def help(self):
         cwd = os.getcwd()
-        p = mp.Process(target=os.system, args=(os.path.join(cwd, 'Config/Help.txt'),))
+        p = mp.Process(target=os.system, args=(os.path.join(cwd, 'README.txt'),))
         p.start()
         # os.system(os.path.join(cwd, 'Config/Help.txt'))
 
