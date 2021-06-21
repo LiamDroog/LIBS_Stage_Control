@@ -1,5 +1,5 @@
 import tkinter as tk
-from StageClass import TwoAxisStage
+from StageClass import LIBS_2AxisStage
 import serial.tools.list_ports
 import os
 
@@ -31,12 +31,16 @@ class StageLauncher:
         self.start_stage_btn.grid(row=4, column=0, columnspan=2, sticky='nsew')
 
         # Com port
-        comlist = [comport.device for comport in serial.tools.list_ports.comports()]
+        self.comlist = [comport.device for comport in serial.tools.list_ports.comports() if 'USB-SERIAL CH340' in comport.description]
         self.comval = tk.StringVar(self.window)
         self.comval.set('Select Com Port')
         self.comlabel = tk.Label(master=self.window, text='COM Port:')
         self.comlabel.grid(row=1, column=0, sticky='news')
-        self.com = tk.OptionMenu(self.window, self.comval, *comlist)
+        if len(self.comlist) == 0:
+            self.com = tk.OptionMenu(self.window, tk.StringVar(self.window, 'No suitable ports detected'), [])
+            self.com.configure(state='disabled')
+        else:
+            self.com = tk.OptionMenu(self.window, self.comval, *self.comlist)
         self.com.grid(row=1, column=1, sticky='ew')
 
         # baud
@@ -66,7 +70,7 @@ class StageLauncher:
 
     def __startStage(self):
         try:
-            self.stage = TwoAxisStage(self.comval.get(), self.baudval.get(), self.startfile.get()).start()
+            self.stage = LIBS_2AxisStage(self.comval.get(), self.baudval.get(), self.startfile.get()).start()
         except Exception as e:
             self.stagelabel.config(text='Could not start stage', fg='Red')
             print(e)
@@ -77,9 +81,9 @@ class StageLauncher:
             with open(self.cfg_file, 'r') as f:
                 for i in f:
                     i = i.rstrip().split(':')
-                    print(i)
                     if i[0] == 'com':
-                        self.comval.set(i[1])
+                        if i[1] in self.comlist:
+                            self.comval.set(i[1])
                     elif i[0] == 'baud':
                         self.baudval.set(int(i[1]))
                     elif i[0] == 'startfile':

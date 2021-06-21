@@ -14,7 +14,7 @@ from QueueClass import Queue
 import multiprocessing as mp
 
 
-class TwoAxisStage:
+class LIBS_2AxisStage:
     """
     # todo: weed out unnecessary stuff, prelim gui for launching and selecting baud, com port, startup file, etc
             Bare minimum: Ability to move stage under manual control
@@ -702,4 +702,4 @@ class TwoAxisStage:
 
 
 if __name__ == '__main__':
-    TwoAxisStage()
+    LIBS_2AxisStage()
