@@ -21,8 +21,8 @@ First installation steps:
     You might need to install h5py separately for python 3.8.10 because we can't have nice things.
     Either by whl or by pip it should work. If not, manually install everything until something breaks
 
-    Check if there is a USB-SERIAL CH340 under ports (COM & LPT) in Device Manager. If not, you need to install
-    the ch340 usb driver
+    Check if there is a USB-SERIAL CH340 under ports (COM & LPT) in Device Manager when unit is plugged in.
+    If not, you need to install the ch340 usb driver.
 
 From there, connect the stage control and to the computer via USB, and to power (12v/ max 4A).
 
@@ -59,9 +59,9 @@ Important Buttons:
         Sets current stage position to [0, 0] as reference home
     - Go home
         Goes to set home
-    - 10, 1, 0.1, 0.01, 0.001
+    - 10, 1, 0.5, 0.1, 0.05
         These change the rate at which the stage moves whenever jogged. This stage has a resolution of around
-        50 micron, so anything above 0.01 should be alright. Currently, using 0.001 doesn't do much.
+        50 micron, so anything above 0.05 should be alright. Currently, using anything below doesn't do much.
 
 
 Important notes:
