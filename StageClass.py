@@ -103,21 +103,21 @@ class TwoAxisStage:
         self.btn_1.configure(width=self.buttonx, height=self.buttony)
 
         # 0.1 button
-        self.btn_01 = tk.Button(master=self.window, text='0.1', command=lambda: self.switchRate(0.1))
+        self.btn_01 = tk.Button(master=self.window, text='0.5', command=lambda: self.switchRate(0.5))
         self.btn_01.grid(row=3, column=3, sticky='nsew')
         self.btn_01.configure(width=self.buttonx, height=self.buttony)
         # 0.01 button
-        self.btn_001 = tk.Button(master=self.window, text='0.01', command=lambda: self.switchRate(0.01))
+        self.btn_001 = tk.Button(master=self.window, text='0.1', command=lambda: self.switchRate(0.1))
         self.btn_001.grid(row=3, column=4, sticky='nsew')
         self.btn_001.configure(width=self.buttonx, height=self.buttony)
 
-        self.btn_0001 = tk.Button(master=self.window, text='0.001', command=lambda: self.switchRate(0.001))
+        self.btn_0001 = tk.Button(master=self.window, text='0.05', command=lambda: self.switchRate(0.05))
         self.btn_0001.grid(row=3, column=5, sticky='nsew')
         self.btn_0001.configure(width=self.buttonx, height=self.buttony)
 
         # DRO frame
         self.lbl_frame = tk.Frame(master=self.window, relief=tk.RAISED, borderwidth=3)
-        self.lbl_pos = tk.Label(master=self.lbl_frame, text='X: %1.3f, Y:%1.3f, Feedrate: %d'
+        self.lbl_pos = tk.Label(master=self.lbl_frame, text='X: %1.3f, Y:%1.3f, Feedrate: %d, Units: mm'
                                                             % (self.pos[0], self.pos[1], self.feedrate))
         self.lbl_pos['font'] = font.Font(size=18)
 
