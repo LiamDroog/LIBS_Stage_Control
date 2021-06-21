@@ -17,7 +17,7 @@ class StageLauncher:
         self.window.rowconfigure(self.rowarr, minsize=0, weight=1)
         self.window.columnconfigure(self.colarr, minsize=0, weight=1)
 
-        self.screenwidth = int(self.window.winfo_screenwidth() * 0.1)
+        self.screenwidth = int(self.window.winfo_screenwidth() * 0.2)
         self.screenheight = int(self.window.winfo_screenheight() * 0.15)
         self.window.geometry(
             '%dx%d+%d+%d' % (self.screenwidth, self.screenheight, self.window.winfo_screenwidth() / 3,
