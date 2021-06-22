@@ -26,7 +26,7 @@ class LIBS_2AxisStage:
     def __init__(self, port, baud, startupfile):
         self.s = None
         self.window = tk.Toplevel()
-        self.window.title('Stage Control')
+        self.window.title('/Stage Control')
         self.pos = [0., 0.]
         self.currentpos = 'X0 Y0'
         self.rate = 1

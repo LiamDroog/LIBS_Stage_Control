@@ -19,7 +19,7 @@ import os
 class StageLauncher:
     def __init__(self):
         # Stuff for launching stage
-        self.window = tk.Tk(className='Launcher')
+        self.window = tk.Tk(className='/Launcher')
         self.stage = None
         self.cfg_file = 'Config/stageconfig.cfg'
 
