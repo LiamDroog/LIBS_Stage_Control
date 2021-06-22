@@ -75,6 +75,9 @@ TL;DR of Gcode:
       where after X and Y are the respective coordinates that you wish to go to. Spacing is important (that is, spaces
       between 'G0' and 'X' and between 'X' and 'Y' are paramount to smooth operation
     For example, if you wish to go to X=1.22, Y=-4.52, the command would be: 'G0 X1.22 Y-4.52'
+    To change the feedrate (that is, the speed at which the stage travels, simply use Fxxxx, such as
+    G0 X1 Y3 F1000 would go to [1,3] at a speed of 1000 mm/min. Default feedrate is around 1400, configurable by
+    the config file
     Then, off it goes! There is a rabbit hole of Gcode, but most of it is not relevant for our uses (at least for LIBS)
 
 Congratulations, you made it to the end of the readme file!
