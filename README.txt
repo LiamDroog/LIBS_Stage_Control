@@ -9,7 +9,7 @@ Information for utilizing the stage control program
 # Python:   3.8.10
 ###################################################
 
-Launching from somewhere other than parent directory:
+If you'd like to launch from somewhere other than parent directory:
 
     Right click and create a shortcut for Launcher.bat to launch from anywhere on your system (desktop, likely.)
     Don't take it out of it's folder, otherwise it won't work!
@@ -22,7 +22,7 @@ First installation steps:
     Either by whl or by pip it should work. If not, manually install everything until something breaks
 
     Check if there is a USB-SERIAL CH340 under ports (COM & LPT) in Device Manager when unit is plugged in.
-    If not, you need to install the ch340 usb driver.
+    If not, you need to install the CH340 usb driver.
 
 From there, connect the stage control and to the computer via USB, and to power (12v/ max 4A).
 
@@ -30,7 +30,7 @@ From there, connect the stage control and to the computer via USB, and to power 
 DO NOT LEAVE CONTROL BOARD POWER PLUGGED IN WHEN NOT IN USE
 ###########################################################
 
-It has a weird habit of dumping current into the steppers and everything gets super hot if left plugged in,
+It has a habit of locking the stepper motors and dumping current into the steppers and everything gets super hot if left plugged in,
 leading to stepper motor burnout. There is also no limit switch currently implemented - if something goes south,
 best course of action is to kill power to the board, be it by disconnecting power from the wall or from the board input.
 
@@ -38,8 +38,9 @@ To run the stage control, run Launcher.bat and follow the prompts. An outline li
 
 COM/BAUD settings:
 
-    COM port is the usb port that the stage is connected to. Make note of which are present *without* the stage
-    connected and then you'll be able to tell which it is when you connect the board and relaunch as it'll be new.
+    Com port should be detected automagically. If none are availible and you're sure that the CH340 driver is installed,
+    take out the 'if 'USB-SERIAL CH340' in comport.description' in the declaration of self.comlist in Launcher.py.
+    This may or may not fix the problem. It works on multiple systems as of writing, but I forsee issues arising
 
     Baud rate for the board is 112500. Other values won't work properly.
 
@@ -66,8 +67,8 @@ Important Buttons:
 
 Important notes:
     - Native units are in mm
-    - Movement can be 'jogged' with the arrow keys. Don't hold them down excessivly, or risk running the stage
-      into one of it's ends
+    - Movement can be 'jogged' with the arrow keys. Don't hold them down excessively, or risk running the stage
+      into one of its ends
     - This also takes in Gcode commands in the CLI on the right.
 
 TL;DR of Gcode:
