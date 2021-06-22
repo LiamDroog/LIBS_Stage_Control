@@ -1,5 +1,12 @@
 """
-@author Liam Droog
+##################################################
+Class file for controlling the libs 2 axis stage
+##################################################
+# Author:   Liam Droog
+# Email:    droog@ualberta.ca
+# Year:     2021
+# Version:  V.1.0.0
+##################################################
 """
 
 import tkinter as tk
@@ -15,10 +22,6 @@ import multiprocessing as mp
 
 
 class LIBS_2AxisStage:
-    """
-    # todo: weed out unnecessary stuff, prelim gui for launching and selecting baud, com port, startup file, etc
-            Bare minimum: Ability to move stage under manual control
-    """
 
     def __init__(self, port, baud, startupfile):
         self.s = None
@@ -58,7 +61,7 @@ class LIBS_2AxisStage:
             'xMaxAcc': [120, None],
             'yMaxAcc': [121, None],
         }
-        self.param_number = 2  ###########
+        # self.param_number = 2  ###########
 
         # draws all on-screen controls and assigns their event commands
         self.rowarr = list(i for i in range(self.grid[0]))
@@ -247,7 +250,6 @@ class LIBS_2AxisStage:
         Allows for stage control via WASD - Not sure if keeping implementation
 
         :param event: onKeyPress event
-        :param wasd: if True, wasd controls the stage
         :return: None
         """
         if event.char.lower() == '<up>':
