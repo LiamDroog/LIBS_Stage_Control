@@ -64,6 +64,7 @@ class StageLauncher:
         try:
             self.window.iconify()
             self.stage = LIBS_2AxisStage(self.comval.get(), self.baudval.get(), self.startfile.get()).start()
+            print('stage closed')
             self.window.deiconify()
         except Exception as e:
             self.stagelabel.config(text='Could not start stage', fg='Red')

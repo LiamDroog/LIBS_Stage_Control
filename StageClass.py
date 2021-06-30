@@ -513,7 +513,10 @@ class LIBS_2AxisStage:
         np.save('Config/Config.npy', self.pos)
 
     def __getLastPos(self):
-        self.pos = np.load('Confic/Config.npy')
+        try:
+            self.pos = np.load('Config/Config.npy')
+        except:
+            print('Could not load last known position')
 
 
     # def __blinkButton(self, button, c1, c2, delay):
