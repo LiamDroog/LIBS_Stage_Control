@@ -1,5 +1,5 @@
 import tkinter as tk
-from StageClass import TwoAxisStage
+from StageClass import LIBS_2AxisStage
 import serial.tools.list_ports
 
 
@@ -63,11 +63,12 @@ class StageLauncher:
     def __startStage(self):
         try:
             self.window.iconify()
-            self.stage = TwoAxisStage(self.comval.get(), self.baudval.get(), self.startfile.get()).start()
+            self.stage = LIBS_2AxisStage(self.comval.get(), self.baudval.get(), self.startfile.get()).start()
             self.window.wm_state('zoomed')
         except Exception as e:
             self.stagelabel.config(text='Could not start stage', fg='Red')
             print(e)
             self.window.after(5000, lambda : self.stagelabel.config(text='Stage Control Launcher', fg='Black'))
+
 if __name__ == '__main__':
     StageLauncher()
