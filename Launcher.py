@@ -7,6 +7,7 @@ class StageLauncher:
     def __init__(self):
         # Stuff for launching stage
         self.window = tk.Tk(className='Launcher')
+        self.window.wm_state('iconic')
         self.stage = None
         # configure grid for widget layout
         self.grid = [5, 2]
@@ -61,7 +62,9 @@ class StageLauncher:
 
     def __startStage(self):
         try:
+            self.window.iconify()
             self.stage = TwoAxisStage(self.comval.get(), self.baudval.get(), self.startfile.get()).start()
+            self.window.wm_state('zoomed')
         except Exception as e:
             self.stagelabel.config(text='Could not start stage', fg='Red')
             print(e)

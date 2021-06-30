@@ -8,9 +8,9 @@ import tkinter.font as font
 import serial
 import time
 import numpy as np
-import os
-import h5py
-from QueueClass import Queue
+# import os
+# import h5py
+# from QueueClass import Queue
 
 
 class TwoAxisStage:
@@ -199,7 +199,7 @@ class TwoAxisStage:
         self.window.bind('<Right>', self.moveright)
 
     def start(self):
-
+        self.__getLastPos()
         self.window.mainloop()
 
     def stop(self):
@@ -212,6 +212,7 @@ class TwoAxisStage:
 
     def __on_closing(self):
         if messagebox.askokcancel("Quit", "Quit?"):
+            self.__setLastPositon()
             self.connected = False
             self.s.close()
             self.s = None
@@ -499,6 +500,16 @@ class TwoAxisStage:
         :return: None
         """
         self.feedrate = feedrate
+
+    def __setLastPositon(self):
+        # check if config exists
+        # Overwrite regardless I guess
+        np.save('Config/Config.npy', self.pos)
+
+    def __getLastPos(self):
+        tmp = np.load('Config/Config.npy')
+        assert len(tmp) == 2
+        self.pos = tmp
 
     # def __blinkButton(self, button, c1, c2, delay):
     #     """
