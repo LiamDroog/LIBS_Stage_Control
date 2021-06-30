@@ -30,7 +30,7 @@ class StageLauncher:
         self.start_stage_btn.grid(row=4, column=0, columnspan=2, sticky='nsew')
 
         # Com port
-        comlist = [comport.device for comport in serial.tools.list_ports.comports()]
+        comlist = [comport.device for comport in serial.tools.list_ports.comports() if 'USB-SERIAL CH340' in comport.description]
         self.comval = tk.StringVar(self.window)
         self.comval.set('Select Com Port')
         self.comlabel = tk.Label(master=self.window, text='COM Port:')
