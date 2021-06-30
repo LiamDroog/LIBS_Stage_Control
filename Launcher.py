@@ -64,7 +64,6 @@ class StageLauncher:
         try:
             self.window.iconify()
             self.stage = LIBS_2AxisStage(self.comval.get(), self.baudval.get(), self.startfile.get()).start()
-            self.window.wm_state('zoomed')
         except Exception as e:
             self.stagelabel.config(text='Could not start stage', fg='Red')
             print(e)

@@ -203,6 +203,7 @@ class LIBS_2AxisStage:
 
 
     def start(self):
+        self.__getLastPos()
         self.window.mainloop()
 
     def stop(self):
@@ -215,6 +216,7 @@ class LIBS_2AxisStage:
 
     def __on_closing(self):
         if messagebox.askokcancel("Quit", "Quit?"):
+            self.__setLastPos()
             self.connected = False
             self.s.close()
             self.s = None
@@ -506,6 +508,12 @@ class LIBS_2AxisStage:
         p = mp.Process(target=os.system, args=(os.path.join(cwd, 'README.txt'),))
         p.start()
         # os.system(os.path.join(cwd, 'Config/Help.txt'))
+
+    def __setLastPos(self):
+        np.save('Config/Config.npy', self.pos)
+
+    def __getLastPos(self):
+        self.pos = np.load('Confic/Config.npy')
 
 
     # def __blinkButton(self, button, c1, c2, delay):
