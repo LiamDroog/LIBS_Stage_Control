@@ -1,5 +1,12 @@
 """
-@author Liam Droog
+##################################################
+Class file for controlling the libs 2 axis stage
+##################################################
+# Author:   Liam Droog
+# Email:    droog@ualberta.ca
+# Year:     2021
+# Version:  V.1.0.0
+##################################################
 """
 
 import tkinter as tk
@@ -8,21 +15,18 @@ import tkinter.font as font
 import serial
 import time
 import numpy as np
-# import os
-# import h5py
-# from QueueClass import Queue
+import os
+import h5py
+from QueueClass import Queue
+import multiprocessing as mp
 
 
-class TwoAxisStage:
-    """
-    # todo: weed out unnecessary stuff, prelim gui for launching and selecting baud, com port, startup file, etc
-            Bare minimum: Ability to move stage under manual control
-    """
+class LIBS_2AxisStage:
 
     def __init__(self, port, baud, startupfile):
         self.s = None
         self.window = tk.Toplevel()
-        self.window.title('Stage Control')
+        self.window.title('/Stage Control')
         self.pos = [0., 0.]
         self.currentpos = 'X0 Y0'
         self.rate = 1
@@ -57,7 +61,7 @@ class TwoAxisStage:
             'xMaxAcc': [120, None],
             'yMaxAcc': [121, None],
         }
-        self.param_number = 2  ###########
+        # self.param_number = 2  ###########
 
         # draws all on-screen controls and assigns their event commands
         self.rowarr = list(i for i in range(self.grid[0]))
@@ -102,21 +106,21 @@ class TwoAxisStage:
         self.btn_1.configure(width=self.buttonx, height=self.buttony)
 
         # 0.1 button
-        self.btn_01 = tk.Button(master=self.window, text='0.1', command=lambda: self.switchRate(0.1))
+        self.btn_01 = tk.Button(master=self.window, text='0.5', command=lambda: self.switchRate(0.5))
         self.btn_01.grid(row=3, column=3, sticky='nsew')
         self.btn_01.configure(width=self.buttonx, height=self.buttony)
         # 0.01 button
-        self.btn_001 = tk.Button(master=self.window, text='0.01', command=lambda: self.switchRate(0.01))
+        self.btn_001 = tk.Button(master=self.window, text='0.1', command=lambda: self.switchRate(0.1))
         self.btn_001.grid(row=3, column=4, sticky='nsew')
         self.btn_001.configure(width=self.buttonx, height=self.buttony)
 
-        self.btn_0001 = tk.Button(master=self.window, text='0.001', command=lambda: self.switchRate(0.001))
+        self.btn_0001 = tk.Button(master=self.window, text='0.05', command=lambda: self.switchRate(0.05))
         self.btn_0001.grid(row=3, column=5, sticky='nsew')
         self.btn_0001.configure(width=self.buttonx, height=self.buttony)
 
         # DRO frame
         self.lbl_frame = tk.Frame(master=self.window, relief=tk.RAISED, borderwidth=3)
-        self.lbl_pos = tk.Label(master=self.lbl_frame, text='X: %1.3f, Y:%1.3f, Feedrate: %d'
+        self.lbl_pos = tk.Label(master=self.lbl_frame, text='X: %1.3f, Y:%1.3f, Feedrate: %d, Units: mm'
                                                             % (self.pos[0], self.pos[1], self.feedrate))
         self.lbl_pos['font'] = font.Font(size=18)
 
@@ -174,10 +178,9 @@ class TwoAxisStage:
         self.set_home.grid(row=1, column=4, sticky='nsew')
         self.set_home.configure(width=self.buttonx, height=self.buttony)
 
-        # self.start_from_death_btn = tk.Button(master=self.window, text='No temp\nfile found')
-        # self.start_from_death_btn.grid(row=2, column=5, sticky='nesw')
-        # self.start_from_death_btn['font'] = font.Font(size=10)
-        # self.start_from_death_btn.configure(width=self.buttonx, height=self.buttony)
+        self.help_button = tk.Button(master=self.window, text='Help', command=self.help)
+        self.help_button.grid(row=2, column=5, sticky='nesw')
+        self.help_button.configure(width=self.buttonx, height=self.buttony)
 
         self.output = tk.Listbox(master=self.window)
         self.output.grid(columnspan=4, rowspan=self.grid[1] - 6, row=1, column=6, sticky='nsew')
@@ -198,8 +201,8 @@ class TwoAxisStage:
         self.window.bind('<Left>', self.moveleft)
         self.window.bind('<Right>', self.moveright)
 
+
     def start(self):
-        self.__getLastPos()
         self.window.mainloop()
 
     def stop(self):
@@ -212,7 +215,6 @@ class TwoAxisStage:
 
     def __on_closing(self):
         if messagebox.askokcancel("Quit", "Quit?"):
-            self.__setLastPositon()
             self.connected = False
             self.s.close()
             self.s = None
@@ -248,10 +250,8 @@ class TwoAxisStage:
         Allows for stage control via WASD - Not sure if keeping implementation
 
         :param event: onKeyPress event
-        :param wasd: if True, wasd controls the stage
         :return: None
         """
-        print(event.char)
         if event.char.lower() == '<up>':
             self.jogY(self.rate)
         elif event.char.lower() == '<left>':
@@ -501,15 +501,12 @@ class TwoAxisStage:
         """
         self.feedrate = feedrate
 
-    def __setLastPositon(self):
-        # check if config exists
-        # Overwrite regardless I guess
-        np.save('Config/Config.npy', self.pos)
+    def help(self):
+        cwd = os.getcwd()
+        p = mp.Process(target=os.system, args=(os.path.join(cwd, 'README.txt'),))
+        p.start()
+        # os.system(os.path.join(cwd, 'Config/Help.txt'))
 
-    def __getLastPos(self):
-        tmp = np.load('Config/Config.npy')
-        assert len(tmp) == 2
-        self.pos = tmp
 
     # def __blinkButton(self, button, c1, c2, delay):
     #     """
@@ -707,4 +704,4 @@ class TwoAxisStage:
 
 
 if __name__ == '__main__':
-    TwoAxisStage()
+    LIBS_2AxisStage()
