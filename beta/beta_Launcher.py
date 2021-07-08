@@ -1,5 +1,5 @@
 import tkinter as tk
-from StageClass import LIBS_2AxisStage
+from beta_StageClass import LIBS_2AxisStage
 import serial.tools.list_ports
 
 
