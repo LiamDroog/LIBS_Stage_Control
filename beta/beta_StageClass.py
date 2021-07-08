@@ -26,7 +26,7 @@ class LIBS_2AxisStage:
     def __init__(self, port, baud, startupfile):
         self.s = None
         self.window = tk.Toplevel()
-        self.window.title('/Stage Control')
+        self.window.title('Stage Control')
         self.pos = [0., 0.]
         self.currentpos = 'X0 Y0'
         self.rate = 1
@@ -147,16 +147,16 @@ class LIBS_2AxisStage:
         # file input button
         self.file_input = tk.Button(master=self.window, text='Get File',
                                     command=lambda: self.getFile(self.file_entry.get()))
-        self.file_input.grid(row=4, column=3, sticky='new')
+        self.file_input.grid(row=4, column=3, sticky='ew')
         self.file_input.configure(width=self.buttonx, height=self.buttony)
 
         # file run button
         #self.file_run = tk.Button(master=self.window, text='Run', command=lambda: self.runFile())
         self.file_run = tk.Button(master=self.window, text='Run')
-        self.file_run.grid(row=4, column=4, sticky='new')
+        self.file_run.grid(row=4, column=4, sticky='ew')
         self.file_run.configure(width=self.buttonx)
 
-        self.kill_btn = tk.Button(master=self.window, text='')
+        self.kill_btn = tk.Button(master=self.window, text='Kill', command=self.killSwitch)
         self.kill_btn.grid(row=2, column=5, sticky='nsew')
         self.kill_btn.configure(width=self.buttonx)
 
@@ -520,59 +520,59 @@ class LIBS_2AxisStage:
             print('Could not load last known position')
 
 
-    # def __blinkButton(self, button, c1, c2, delay):
-    #     """
-    #     Blinks a button between two colors, c1 and c2. Has logic for specific buttons to cease switching given a
-    #     specific string as the text.
-    #
-    #     :param button: target button instance
-    #     :param c1: First color to switch to, string
-    #     :param c2: Second color to switch to, string
-    #     :param delay: Delay in ms
-    #     :return: None
-    #     """
-    #     if button['text'] == 'Start?':
-    #         return
-    #     else:
-    #         if button['fg'] == c1:
-    #             button.configure(fg=c2)
-    #         else:
-    #             button.configure(fg=c1)
-    #         self.window.after(delay, lambda: self.__blinkButton(button, c1, c2, delay))
+    def __blinkButton(self, button, c1, c2, delay):
+        """
+        Blinks a button between two colors, c1 and c2. Has logic for specific buttons to cease switching given a
+        specific string as the text.
 
-    # def calcDelay(self, currentpos, nextpos):
-    #     """
-    #     Calculates a lower end of the required delay between moved for the queue command system
-    #
-    #     :param currentpos: Current position
-    #     :param nextpos: Next position
-    #     :return: time delay in ms
-    #     """
-    #
-    #     ipos = self.__parsePosition(currentpos)
-    #     fpos = self.__parsePosition(nextpos)
-    #     assert len(ipos) == len(fpos), 'Input arrays must be same length'
-    #
-    #     v = float(self.parameters['xMaxRate'][1]) / 60
-    #     a = float(self.parameters['xMaxRate'][1])  # becomes very choppy changing to xMaxAcc... idk wtf
-    #
-    #     delta = list(ipos[i] - fpos[i] for i in range(len(ipos)))
-    #     d = np.sqrt(sum(i ** 2 for i in delta))
-    #     deltaT = ((2 * v) / a) + ((d - (v ** 2 / a)) / v)
-    #     print('next move in ' + str(int(np.floor(deltaT * 1000))) + 'ms')
-    #     return int(np.floor(deltaT * 1000))  # in ms
+        :param button: target button instance
+        :param c1: First color to switch to, string
+        :param c2: Second color to switch to, string
+        :param delay: Delay in ms
+        :return: None
+        """
+        if button['text'] == 'Start?':
+            return
+        else:
+            if button['fg'] == c1:
+                button.configure(fg=c2)
+            else:
+                button.configure(fg=c1)
+            self.window.after(delay, lambda: self.__blinkButton(button, c1, c2, delay))
 
-    # def killSwitch(self):
-    #     """
-    #     effectively kills current gcode run by clearing queue. Note this isn't instantaneous
-    #
-    #     :return: None
-    #     """
-    #     if self.s:
-    #         self.queue.clear()
-    #         self.temprunning = False
-    #         self.output.insert('end', '\n' + '!> ' + 'Current motion killed')
-    #         self.output.yview(tk.END)
+    def calcDelay(self, currentpos, nextpos):
+        """
+        Calculates a lower end of the required delay between moved for the queue command system
+
+        :param currentpos: Current position
+        :param nextpos: Next position
+        :return: time delay in ms
+        """
+
+        ipos = self.__parsePosition(currentpos)
+        fpos = self.__parsePosition(nextpos)
+        assert len(ipos) == len(fpos), 'Input arrays must be same length'
+
+        v = float(self.parameters['xMaxRate'][1]) / 60
+        a = float(self.parameters['xMaxRate'][1])  # becomes very choppy changing to xMaxAcc... idk wtf
+
+        delta = list(ipos[i] - fpos[i] for i in range(len(ipos)))
+        d = np.sqrt(sum(i ** 2 for i in delta))
+        deltaT = ((2 * v) / a) + ((d - (v ** 2 / a)) / v)
+        print('next move in ' + str(int(np.floor(deltaT * 1000))) + 'ms')
+        return int(np.floor(deltaT * 1000))  # in ms
+
+    def killSwitch(self):
+        """
+        effectively kills current gcode run by clearing queue. Note this isn't instantaneous
+
+        :return: None
+        """
+        if self.s:
+            self.queue.clear()
+            self.temprunning = False
+            self.output.insert('end', '\n' + '!> ' + 'Current motion killed')
+            self.output.yview(tk.END)
 
 
     def getFile(self, filename):
@@ -593,126 +593,126 @@ class LIBS_2AxisStage:
             for line in f:
                 if line != '' and line[0] != ';':
                     self.queue.enqueue(line)
-            self.output.insert('end', '\n' + '> ' + ' Loaded ' +filename)
+            self.output.insert('end', '\n' + '> ' + ' Loaded ' + filename)
             self.output.yview(tk.END)
         except FileNotFoundError:
             self.file_entry.delete(0, 'end')
             self.output.insert('end', '\n' + '!> ' + ' File does not exist')
             self.output.yview(tk.END)
 
-    # def __startFromDeath(self):
-    #     """
-    #     Starts from an unexpected power loss. Retreives last known position from temp file.
-    #     Issues: Target stage *could* be manually moved on us prior to reviving. User initiative to ensure
-    #     nothing moves.
-    #
-    #     :return: None
-    #     """
-    #     if self.s:
-    #         self.queue = None
-    #         currentline = self.__retrieveTempData()
-    #         try:
-    #             f = open(self.filename, 'r')
-    #             self.queue = Queue()
-    #             positionFound = False
-    #             for line in f:
-    #                 if line == currentline:
-    #                     positionFound = True
-    #                 if positionFound:
-    #                     if line != '' and line[0] != ';':
-    #                         self.queue.enqueue(line)
-    #             print('Loaded ' + self.filename)
-    #             self.start_from_death_btn.configure(text='Start?', fg='green', command=self.runFile)
-    #         except:
-    #             return
-    #         # except FileNotFoundError:
-    #             # self.file_entry.delete(0, 'end')
-    #             # self.file_entry.insert(0, 'File does not exist')
-    #     else:
-    #         self.start_from_death_btn.configure(text='Not\nconnected')
-    #         self.window.after(5000, lambda: self.start_from_death_btn.configure(text='Load\nData?'))
+    def __startFromDeath(self):
+        """
+        Starts from an unexpected power loss. Retreives last known position from temp file.
+        Issues: Target stage *could* be manually moved on us prior to reviving. User initiative to ensure
+        nothing moves.
 
-    # def __removeTempFile(self):
-    #     """
-    #     removes temp file at end of program run
-    #
-    #     :return: None
-    #     """
-    #     os.remove(self.tempFile)
-    #     self.tempFile = None
+        :return: None
+        """
+        if self.s:
+            self.queue = None
+            currentline = self.__retrieveTempData()
+            try:
+                f = open(self.filename, 'r')
+                self.queue = Queue()
+                positionFound = False
+                for line in f:
+                    if line == currentline:
+                        positionFound = True
+                    if positionFound:
+                        if line != '' and line[0] != ';':
+                            self.queue.enqueue(line)
+                print('Loaded ' + self.filename)
+                self.start_from_death_btn.configure(text='Start?', fg='green', command=self.runFile)
+            except:
+                return
+            # except FileNotFoundError:
+                # self.file_entry.delete(0, 'end')
+                # self.file_entry.insert(0, 'File does not exist')
+        else:
+            self.start_from_death_btn.configure(text='Not\nconnected')
+            self.window.after(5000, lambda: self.start_from_death_btn.configure(text='Load\nData?'))
 
-    # def __saveTempData(self):
-    #     """
-    #     Saves temp data to temp file, if program is currently running it calls itself every 1000ms
-    #
-    #     :return: None
-    #     """
-    #     if self.temprunning:
-    #         if self.queue.size() > 0:
-    #             np.save(self.tempFile, [self.queue.peek(), time.asctime(), self.filename, self.shotnum])
-    #             self.window.after(1000, self.__saveTempData)
-    #             return True
-    #     else:
-    #         return False
+    def __removeTempFile(self):
+        """
+        removes temp file at end of program run
 
-    # def __retrieveTempData(self):
-    #     """
-    #     Retrieves temp data from temp.npy if it exists and user calls it. Needs to be updated
-    #     to reflect final changes in temp data stored once integrated into laser system
-    #
-    #     :return: Last line that runfile stored before unexpected power loss
-    #     """
-    #     self.tempFile = 'temp.npy'
-    #     currentline, t, self.filename, self.shotnum = np.load(self.tempFile)
-    #     print(currentline, t, self.filename)
-    #     return currentline
+        :return: None
+        """
+        os.remove(self.tempFile)
+        self.tempFile = None
 
-    # def __setTempFile(self):
-    #     """
-    #     Sets the temporary file name, unless it exists
-    #
-    #     :return: None
-    #     """
-    #     pass
-    #     # if os.path.exists('temp.npy') or self.tempFile is not None:
-    #     #     self.start_from_death_btn.configure(text='Load\nData?', fg='red')
-    #     #     self.__blinkButton(self.start_from_death_btn, 'red', 'blue', 1000)
-    #     # else:
-    #     #     self.tempFile = 'temp.npy'
+    def __saveTempData(self):
+        """
+        Saves temp data to temp file, if program is currently running it calls itself every 1000ms
 
-    # def finishRun(self):
-    #     """
-    #     Runs after file completion, removes contingency file since it is not needed.
-    #
-    #     :return: None
-    #     """
-    #     print('File run complete')
-    #     self.__removeTempFile()
+        :return: None
+        """
+        if self.temprunning:
+            if self.queue.size() > 0:
+                np.save(self.tempFile, [self.queue.peek(), time.asctime(), self.filename, self.shotnum])
+                self.window.after(1000, self.__saveTempData)
+                return True
+        else:
+            return False
 
-    # def runFile(self):
-    #     """
-    #     Used to run a file obained with getFile()
-    #
-    #     :return: None
-    #     """
-    #     if self.s:
-    #         if not self.temprunning:
-    #             self.temprunning = True
-    #             self.__saveTempData()
-    #
-    #         nextpos = self.queue.dequeue()
-    #         self.sendCommand(nextpos)
-    #
-    #         if self.queue.size() > 0:
-    #             self.window.after(self.calcDelay(self.currentpos, nextpos), self.runFile)
-    #             self.currentpos = nextpos
-    #
-    #         elif self.queue.size() == 0:
-    #             self.window.after(self.calcDelay(self.currentpos, nextpos), self.finishRun)
-    #
-    #         else:
-    #             self.temprunning = False
-    #             return
+    def __retrieveTempData(self):
+        """
+        Retrieves temp data from temp.npy if it exists and user calls it. Needs to be updated
+        to reflect final changes in temp data stored once integrated into laser system
+
+        :return: Last line that runfile stored before unexpected power loss
+        """
+        self.tempFile = 'temp.npy'
+        currentline, t, self.filename, self.shotnum = np.load(self.tempFile)
+        print(currentline, t, self.filename)
+        return currentline
+
+    def __setTempFile(self):
+        """
+        Sets the temporary file name, unless it exists
+
+        :return: None
+        """
+        pass
+        # if os.path.exists('temp.npy') or self.tempFile is not None:
+        #     self.start_from_death_btn.configure(text='Load\nData?', fg='red')
+        #     self.__blinkButton(self.start_from_death_btn, 'red', 'blue', 1000)
+        # else:
+        #     self.tempFile = 'temp.npy'
+
+    def finishRun(self):
+        """
+        Runs after file completion, removes contingency file since it is not needed.
+
+        :return: None
+        """
+        print('File run complete')
+        self.__removeTempFile()
+
+    def runFile(self):
+        """
+        Used to run a file obained with getFile()
+
+        :return: None
+        """
+        if self.s:
+            if not self.temprunning:
+                self.temprunning = True
+                self.__saveTempData()
+
+            nextpos = self.queue.dequeue()
+            self.sendCommand(nextpos)
+
+            if self.queue.size() > 0:
+                self.window.after(self.calcDelay(self.currentpos, nextpos), self.runFile)
+                self.currentpos = nextpos
+
+            elif self.queue.size() == 0:
+                self.window.after(self.calcDelay(self.currentpos, nextpos), self.finishRun)
+
+            else:
+                self.temprunning = False
+                return
 
 
 if __name__ == '__main__':
