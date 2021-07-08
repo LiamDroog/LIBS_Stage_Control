@@ -17,7 +17,7 @@ import time
 import numpy as np
 import os
 # import h5py
-# from QueueClass import Queue
+from QueueClass import Queue
 import multiprocessing as mp
 
 
@@ -140,21 +140,21 @@ class LIBS_2AxisStage:
         self.gcode_send.grid(row=4, column=9, sticky='ewn')
         self.gcode_send.configure(width=5)
 
-        # # file input box
-        # self.file_entry = tk.Entry(master=self.window)
-        # self.file_entry.grid(row=4, columnspan=3, sticky='new')
-        #
-        # # file input button
-        # self.file_input = tk.Button(master=self.window, text='Get File',
-        #                             command=lambda: self.getFile(self.file_entry.get()))
-        # self.file_input.grid(row=4, column=3, sticky='new')
-        # self.file_input.configure(width=self.buttonx, height=self.buttony)
-        #
-        # # file run button
-        # #self.file_run = tk.Button(master=self.window, text='Run', command=lambda: self.runFile())
-        # self.file_run = tk.Button(master=self.window, text='Run')
-        # self.file_run.grid(row=4, column=4, sticky='new')
-        # self.file_run.configure(width=self.buttonx)
+        # file input box
+        self.file_entry = tk.Entry(master=self.window)
+        self.file_entry.grid(row=4, columnspan=3, sticky='new')
+
+        # file input button
+        self.file_input = tk.Button(master=self.window, text='Get File',
+                                    command=lambda: self.getFile(self.file_entry.get()))
+        self.file_input.grid(row=4, column=3, sticky='new')
+        self.file_input.configure(width=self.buttonx, height=self.buttony)
+
+        # file run button
+        #self.file_run = tk.Button(master=self.window, text='Run', command=lambda: self.runFile())
+        self.file_run = tk.Button(master=self.window, text='Run')
+        self.file_run.grid(row=4, column=4, sticky='new')
+        self.file_run.configure(width=self.buttonx)
 
         self.kill_btn = tk.Button(master=self.window, text='')
         self.kill_btn.grid(row=2, column=5, sticky='nsew')
@@ -575,30 +575,30 @@ class LIBS_2AxisStage:
     #         self.output.yview(tk.END)
 
 
-    # def getFile(self, filename):
-    #     """
-    #     Opens file containing gcode. Does not parse for correctness.
-    #     Inputs all non blank lines / comments into a queue for usage
-    #
-    #     :param filename: File to open
-    #     :return: None
-    #     """
-    #     # queue with timing calculation for next move
-    #     # wipe queue
-    #     self.queue = None
-    #     try:
-    #         self.filename = filename
-    #         f = open(filename, 'r')
-    #         self.queue = Queue()
-    #         for line in f:
-    #             if line != '' and line[0] != ';':
-    #                 self.queue.enqueue(line)
-    #         self.output.insert('end', '\n' + '> ' + ' Loaded ' +filename)
-    #         self.output.yview(tk.END)
-    #     except FileNotFoundError:
-    #         self.file_entry.delete(0, 'end')
-    #         self.output.insert('end', '\n' + '!> ' + ' File does not exist')
-    #         self.output.yview(tk.END)
+    def getFile(self, filename):
+        """
+        Opens file containing gcode. Does not parse for correctness.
+        Inputs all non blank lines / comments into a queue for usage
+
+        :param filename: File to open
+        :return: None
+        """
+        # queue with timing calculation for next move
+        # wipe queue
+        self.queue = None
+        try:
+            self.filename = filename
+            f = open(filename, 'r')
+            self.queue = Queue()
+            for line in f:
+                if line != '' and line[0] != ';':
+                    self.queue.enqueue(line)
+            self.output.insert('end', '\n' + '> ' + ' Loaded ' +filename)
+            self.output.yview(tk.END)
+        except FileNotFoundError:
+            self.file_entry.delete(0, 'end')
+            self.output.insert('end', '\n' + '!> ' + ' File does not exist')
+            self.output.yview(tk.END)
 
     # def __startFromDeath(self):
     #     """
