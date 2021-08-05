@@ -8,6 +8,7 @@ from tkinter import filedialog
 import multiprocessing as mp
 from CamCapture import main as camMain
 from Disp_Images import imageViewer
+from PIL import Image, ImageTk
 
 class runcam:
     def __init__(self):
@@ -16,18 +17,18 @@ class runcam:
 
         self.file_extension = 'png' # add a dropdown to select!
 
-        self.dirEntry = tk.Entry(master=self.window)
+        self.dirEntry = tk.Entry(master=self.window, width=50)
         self.dirEntry.insert(0, 'C:\\Users\\Liam Droog\\Desktop\\controlTest\\Images')
-        self.dirEntry.grid(row=0, column=1, sticky='ew')
+        self.dirEntry.grid(row=0, column=3, columnspan=2, sticky='ew')
 
         self.dirLbl = tk.Label(master=self.window, text='Full path of directory:')
-        self.dirLbl.grid(row=0, column=0, sticky='ew')
+        self.dirLbl.grid(row=0, column=0, columnspan=2, sticky='ew')
 
         self.setDirBtn = tk.Button(master=self.window, text='Set', command=self.setTargetDirectory)
-        self.setDirBtn.grid(row=0, column=4, sticky='ew')
+        self.setDirBtn.grid(row=0, column=5, sticky='ew')
 
         self.browseDirBtn = tk.Button(master=self.window, text='Browse', command=self.browse_for_dir)
-        self.browseDirBtn.grid(row=0, column=5, sticky='ew')
+        self.browseDirBtn.grid(row=0, column=6, sticky='ew')
 
         self.checkFiles = tk.Checkbutton(master=self.window, text='Parse for existing files')
         self.checkFiles.grid(row=1, column=0, columnspan=2, sticky='w')
@@ -44,11 +45,23 @@ class runcam:
         self.startCaptureButton = tk.Button(master=self.window, text='Start Camera', command=self.runCamera)
         self.startCaptureButton.grid(row=4, column=0, columnspan=2, sticky='nsew')
 
-        self.stahpCaptureButton = tk.Button(master=self.window, text='Stahp Camera', command=self.stopCamera)
+        self.stahpCaptureButton = tk.Button(master=self.window, text='Stop Camera', command=self.stopCamera)
         self.stahpCaptureButton.grid(row=5, column=0, columnspan=2, sticky='nsew')
 
         self.launchImageViewbtn = tk.Button(master=self.window, text='Launch Viewer',
                                             command=lambda: imageViewer(self.directory, self.file_extension, self.window))
+
+        # IMAGE MEME
+        self.image = Image.open('C:\\Users\\Liam Droog\\Desktop\\catcamera.png')
+        factor = 0.2
+        self.image = self.image.resize((int(self.image.size[0] * factor), int(self.image.size[1] * factor)),
+                                       Image.ANTIALIAS)
+        self.tkimage = ImageTk.PhotoImage(self.image)
+        self.label = tk.Label(master=self.window, image=self.tkimage)
+        self.label.image = self.tkimage
+        self.label.grid(row=1, column=3, columnspan=5, rowspan=10)
+
+
         self.launchImageViewbtn.grid(row=6, column=0, columnspan=2, sticky='nsew')
         self.window.protocol('WM_DELETE_WINDOW', self._onClosing)
         self.startCaptureButton.config(state=tk.DISABLED)
