@@ -75,14 +75,17 @@ class runcam:
                                             command=lambda: imageViewer(self.image_directory, self.spectra_directory, self.file_extension, self.window))
 
         # IMAGE MEME
-        self.image = Image.open('C:\\Users\\Liam Droog\\Desktop\\catcamera.jpg')
-        factor = 0.4
-        self.image = self.image.resize((int(self.image.size[0] * factor), int(self.image.size[1] * factor)),
-                                       Image.ANTIALIAS)
-        self.tkimage = ImageTk.PhotoImage(self.image)
-        self.label = tk.Label(master=self.window, image=self.tkimage)
-        self.label.image = self.tkimage
-        self.label.grid(row=4, column=3, columnspan=5, rowspan=10)
+        try:
+            self.image = Image.open('C:\\Users\\Liam Droog\\Desktop\\catcamera.jpg')
+            factor = 0.4
+            self.image = self.image.resize((int(self.image.size[0] * factor), int(self.image.size[1] * factor)),
+                                           Image.ANTIALIAS)
+            self.tkimage = ImageTk.PhotoImage(self.image)
+            self.label = tk.Label(master=self.window, image=self.tkimage)
+            self.label.image = self.tkimage
+            self.label.grid(row=4, column=3, columnspan=5, rowspan=10)
+        except:
+            pass
 
         self.launchImageViewbtn.grid(row=7, column=0, columnspan=2, sticky='nsew')
         self.window.protocol('WM_DELETE_WINDOW', self._onClosing)

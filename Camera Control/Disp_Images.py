@@ -100,20 +100,20 @@ class imageViewer:
         # init font
         font = tk.font.Font(family='Helvetica', size=16, weight='bold')
         # get 5 most recent files and reverse list so that the most recent is index 0
-        img_dir_list = img_dir_list[-5:]
-        img_dir_list.reverse()
-        spectra_dir_list = spectra_dir_list[-5:]
-        spectra_dir_list.reverse()
+        self.img_dir_list = img_dir_list[-5:]
+        self.img_dir_list.reverse()
+        self.spectra_dir_list = spectra_dir_list[-5:]
+        self.spectra_dir_list.reverse()
 
         for j, i in enumerate(img_dir_list):
             os.chdir(self.image_target_dir)
             # put it into a frame and pack it nicely
             self.rtnFrame = tk.Frame(master=self.scrollFrame, borderwidth=3, relief='groove')
-            imgframe = tk.Frame(master=self.rtnFrame)
-            specframe = tk.Frame(master=self.rtnFrame)
+            self.imgframe = tk.Frame(master=self.rtnFrame)
+            self.specframe = tk.Frame(master=self.rtnFrame)
 
             # for image of sample
-            self.sample_header = tk.Label(master=imgframe, text=i.split('\\')[-1], font=font)
+            self.sample_header = tk.Label(master=self.imgframe, text=i.split('\\')[-1], font=font)
             self.sample_header.grid(row=0, column=0, columnspan=2)
             # self.imageFrame = tk.Frame(master=self.window)
             self.sample_image = Image.open(i)
@@ -122,7 +122,7 @@ class imageViewer:
                                            Image.ANTIALIAS)
             self.sample_tkimage = ImageTk.PhotoImage(self.sample_image)
 
-            self.sample_label = tk.Label(master=imgframe, image=self.sample_tkimage)
+            self.sample_label = tk.Label(master=self.imgframe, image=self.sample_tkimage)
             self.sample_label.image = self.sample_tkimage
             self.sample_label.grid(row=1, column=0, columnspan=2)
 
@@ -130,15 +130,15 @@ class imageViewer:
 
             os.chdir(self.spectra_target_dir)
 
-            self.spec_header = tk.Label(master=specframe, text=spectra_dir_list[j].split('\\')[-1], font=font)
+            self.spec_header = tk.Label(master=self.specframe, text=spectra_dir_list[j].split('\\')[-1], font=font)
             self.spec_header.grid(row=0, column=0, columnspan=2)
-            dat = np.loadtxt(spectra_dir_list[j], dtype=float, delimiter=';')
+            self.dat = np.loadtxt(spectra_dir_list[j], dtype=float, delimiter=';')
             # we need to have the plot shit in here!
-            figure = plt.Figure(figsize=(5,4), dpi=100)
-            ax = figure.add_subplot(111)
-            ax.plot(dat[:,0], dat[:,1])
-            lineplot = FigureCanvasTkAgg(figure, specframe)
-            lineplot.get_tk_widget().grid(row=1, column=0, columnspan=2)
+            self.figure = plt.Figure(figsize=(5,4), dpi=100)
+            self.ax = self.figure.add_subplot(111)
+            self.ax.plot(self.dat[:,0], self.dat[:,1])
+            self.lineplot = FigureCanvasTkAgg(self.figure, self.specframe)
+            self.lineplot.get_tk_widget().grid(row=1, column=0, columnspan=2)
 
 
 
@@ -152,8 +152,8 @@ class imageViewer:
             # self.spec_label.image = self.spec_tkimage
             # self.spec_label.grid(row=1, column=0, columnspan=2)
 
-            imgframe.grid(row=0, column=1)
-            specframe.grid(row=0, column=0)
+            self.imgframe.grid(row=0, column=1)
+            self.specframe.grid(row=0, column=0)
             self.rtnFrame.grid(row=j, column=0)
 
         self.canvasframe.grid(row=0, column=0)
