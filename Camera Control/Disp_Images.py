@@ -4,6 +4,7 @@ import os
 from PIL import ImageTk, Image
 import matplotlib.pyplot as plt
 import numpy as np
+import gc
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class imageViewer:
@@ -56,6 +57,7 @@ class imageViewer:
         except Exception as e:
             print(e)
         finally:
+            gc.collect()
             self.window.after(1000, self.pollDirectory)
 
 
@@ -105,7 +107,7 @@ class imageViewer:
         self.spectra_dir_list = spectra_dir_list[-5:]
         self.spectra_dir_list.reverse()
 
-        for j, i in enumerate(img_dir_list):
+        for j, i in enumerate(self.img_dir_list):
             os.chdir(self.image_target_dir)
             # put it into a frame and pack it nicely
             self.rtnFrame = tk.Frame(master=self.scrollFrame, borderwidth=3, relief='groove')
@@ -130,7 +132,7 @@ class imageViewer:
 
             os.chdir(self.spectra_target_dir)
 
-            self.spec_header = tk.Label(master=self.specframe, text=spectra_dir_list[j].split('\\')[-1], font=font)
+            self.spec_header = tk.Label(master=self.specframe, text=self.spectra_dir_list[j].split('\\')[-1], font=font)
             self.spec_header.grid(row=0, column=0, columnspan=2)
             self.dat = np.loadtxt(spectra_dir_list[j], dtype=float, delimiter=';')
             # we need to have the plot shit in here!
