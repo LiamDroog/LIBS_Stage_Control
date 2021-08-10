@@ -1,10 +1,21 @@
+"""
+##################################################
+Displays images from an image directory and
+txt spectra files from a spectra directory side by
+side for use within LIBS experiments
+##################################################
+# Author:   Liam Droog
+# Email:    droog@ualberta.ca
+# Year:     2021
+# Version:  V.1.0.0
+##################################################
+"""
 import tkinter as tk
 from tkinter import font, ttk
 import os
 from PIL import ImageTk, Image
 import matplotlib.pyplot as plt
 import numpy as np
-import time
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class imageViewer:
@@ -25,6 +36,7 @@ class imageViewer:
         self.canvas.create_window((0,0), window=self.scrollFrame, anchor='nw')
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
+        # initialize lists to store entities later on so that we are nice to the RAM
         self.list_of_rtnframe = []
         self.list_of_imgframe = []
         self.list_of_specframe = []
@@ -39,7 +51,7 @@ class imageViewer:
 
         # stuff for the image frames
         font = tk.font.Font(family='Helvetica', size=16, weight='bold')
-        plt.ion()
+        # plt.ion()
         for i in range(self.num_of_images):
             # frames
             self.list_of_rtnframe.append(tk.Frame(master=self.scrollFrame, borderwidth=3, relief='groove'))
@@ -52,6 +64,7 @@ class imageViewer:
             self.list_of_spectra_plot_ax.append(self.list_of_spectra_plots[i].add_subplot(111))
             self.list_of_spectra_plot_lineplot.append(FigureCanvasTkAgg(self.list_of_spectra_plots[i], self.list_of_specframe[i]))
 
+        # initialize plots so that we can update them later
         for i in range(self.num_of_images):
             self.list_of_spectra_plot_ax_line.append(self.list_of_spectra_plot_ax[i].plot(0,0, linewidth=0.65))
         # grid ALL the things!
@@ -60,7 +73,7 @@ class imageViewer:
             self.list_of_sample_header[i].grid(row=0, column=0, columnspan=2)
             self.list_of_sample_images_label[i].grid(row=1, column=0, columnspan=2)
 
-            # not sure about below
+            # not sure about below. seems to work?
             self.list_of_imgframe[i].grid(row=0, column=1)
             self.list_of_specframe[i].grid(row=0, column=0)
             self.list_of_rtnframe[i].grid(row=i, column=0)
@@ -72,6 +85,7 @@ class imageViewer:
         self.canvas.grid(row=0, column=0, sticky='nesw')
         self.scrollbar.grid(row=0, column=1, sticky='nse')
 
+        # Transfer imputs to class variables
         self.image_target_dir = image_target_dir
         self.spectra_target_dir = spectra_target_dir
         self.file_ext = file_extension
@@ -79,7 +93,8 @@ class imageViewer:
         self.img_dir_list = []
         self.spectra_dir_list = []
         self.iter = 0
-        print('sending to poll image_directory')
+
+        # kickstart directory polling
         self.pollDirectory()
         # run self.onClosing when we close the window to ensure proper cleanup
         self.window.protocol('WM_DELETE_WINDOW', self.onClosing)
@@ -87,6 +102,10 @@ class imageViewer:
         self.window.mainloop()
 
     def pollDirectory(self):
+        """
+        Polls target directories and pulls lists of files to pass to update_image
+        :return: None
+        """
         # Make sure cwd is the same as the target wd
         if not os.getcwd() == self.image_target_dir:
             os.chdir(self.image_target_dir)
@@ -96,10 +115,11 @@ class imageViewer:
             # set current top image to the most recently modified file in the image_directory
             if not self.current_display or self.current_display != self.img_dir_list[-1]:
                 self.current_display = self.img_dir_list[-1]
-
+            # change dir to spectra dir and get a list of present files
             os.chdir(self.spectra_target_dir)
             self.spectra_dir_list = sorted(filter(os.path.isfile, os.listdir('.')), key=os.path.getmtime)
 
+            # update images for your viewing pleasure
             self.update_image(self.img_dir_list, self.spectra_dir_list)
 
         except Exception as e:
@@ -109,46 +129,26 @@ class imageViewer:
             self.window.after(1000, self.pollDirectory)
 
 
-        # if [i for i in os.listdir(self.image_target_dir) if i[-3:] == self.file_ext]:
-        #     present_shots = [int(i[:-4].split('-')[-1]) for i in os.listdir(self.image_target_dir) if i[-3:] == self.file_ext]
-        #     present_shots.sort(key=lambda x: os.path.getmtime(x))
-        #     print(present_shots)
-
-    def stop(self):
-        self.window.destroy()
-
-    def old_update_image(self):
-        # deprecated, only displays one image :(
-        font = tk.font.Font(family='Helvetica', size=36, weight='bold')
-        self.header = tk.Label(master=self.scrollFrame, text=self.current_display.split('\\')[-1], font=font)
-        self.header.grid(row=0, column=0, columnspan=2)
-        # self.imageFrame = tk.Frame(master=self.window)
-        self.image = Image.open(self.current_display)
-        factor = 0.5
-        self.image = self.image.resize((int(self.image.size[0] * factor), int(self.image.size[1] * factor)),
-                                       Image.ANTIALIAS)
-        self.tkimage = ImageTk.PhotoImage(self.image)
-
-        # imgvw = ScrollableImage(self.window, image=self.tkimage, scrollbarwidth=12,
-        #                    width=400, height=400)
-        # imgvw.grid(row=0, column=0)
-        self.label = tk.Label(master=self.scrollFrame, image=self.tkimage)
-        self.label.image = self.tkimage
-        self.label.grid(row=1, column=0, columnspan=2)
-
-        self.canvasframe.grid(row=0, column=0)
-        self.canvas.grid(row=0, column=0, sticky='nesw')
-        self.scrollbar.grid(row=0, column=1, sticky='nse')
-
-
     def _on_mousewheel(self, event):
+        """
+        Scrolls the window when you use the scrollwheel
+        :param event: Event?
+        :return:
+        """
         # scroll on command
         self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
     def update_image(self, img_dir_list, spectra_dir_list):
+        """
+        Updates screen with specified number of images in init, side by side with
+        their corresponding spectra.
+        :param: img_dir_list: List of files present in the image directory. Does not
+                include full file path
+        :param: spectra_dir_list: List of files present in the spectra directory.
+                Does not include full file path
+        :return:
+        """
 
-        # init font
-        # font = tk.font.Font(family='Helvetica', size=16, weight='bold')
         # get 5 most recent files and reverse list so that the most recent is index 0
         self.img_dir_list = img_dir_list[-5:]
         self.img_dir_list.reverse()
@@ -156,85 +156,53 @@ class imageViewer:
         self.spectra_dir_list.reverse()
 
         for j, i in enumerate(self.img_dir_list):
+            # change dir to image dir
             os.chdir(self.image_target_dir)
-            # put it into a frame and pack it nicely
-            # self.rtnFrame = tk.Frame(master=self.scrollFrame, borderwidth=3, relief='groove')
-            # self.imgframe = tk.Frame(master=self.rtnFrame)
-            # self.specframe = tk.Frame(master=self.rtnFrame)
-
-            # for image of sample
-            #
-            #   All of these need to be pre-allocated and then changed via .config methods. I think.
-            #
-            # self.sample_header = tk.Label(master=self.list_of_imgframe[j], text=i.split('\\')[-1], font=font)
-            # self.sample_header.grid(row=0, column=0, columnspan=2) # done
+            # set title of frame to file name
             self.list_of_sample_header[j].config(text=i.split('\\')[-1])
-            # self.list_of_sample_header[j].config(text=str(self.iter))
-            # self.imageFrame = tk.Frame(master=self.window)
+
+            # open and scale image, then insert into label
             self.sample_image = Image.open(i)
             factor = 0.35
             self.sample_image = self.sample_image.resize((int(self.sample_image.size[0] * factor), int(self.sample_image.size[1] * factor)),
                                            Image.ANTIALIAS)
             self.sample_tkimage = ImageTk.PhotoImage(self.sample_image)
 
-            # self.sample_label = tk.Label(master=self.imgframe, image=self.sample_tkimage)
-            # self.sample_label.image = self.sample_tkimage
-            # self.sample_label.grid(row=1, column=0, columnspan=2) # done
             self.list_of_sample_images_label[j].config(image=self.sample_tkimage)
             self.list_of_sample_images_label[j].image = self.sample_tkimage
 
-            # for spectra of sample. NEEDS REWORK FOR SPECRA EH
 
+            # Change dir to spectra dir
             os.chdir(self.spectra_target_dir)
+            # yeet old plot
             self.list_of_spectra_plot_ax[j].clear()
-
-            # self.spec_header = tk.Label(master=self.specframe, text=self.spectra_dir_list[j].split('\\')[-1], font=font)
+            # set title of the plot to file name
             self.list_of_spectra_headers[j].config(text=self.spectra_dir_list[j].split('\\')[-1])
-            # self.spec_header.grid(row=0, column=0, columnspan=2) # done
+            # pull data from target file
             dat = np.loadtxt(self.spectra_dir_list[j], dtype=float, delimiter=';')
-            # we need to have the plot shit in here!
-
+            # plot
             self.list_of_spectra_plot_ax[j].plot(dat[:,0], dat[:,1], linewidth=0.65)
-            # self.list_of_spectra_plot_ax_line[j][0].set_xdata(dat[:,0])
-            # self.list_of_spectra_plot_ax_line[j][0].set_ydata(dat[:,1])
-            self.list_of_spectra_plot_ax[j].set_xlim([200, 900])
+            # Set plot-oriented stuff
+            self.list_of_spectra_plot_ax[j].set_xlim([200, 1000])
             self.list_of_spectra_plot_ax[j].set_ylim([0, 1])
+            self.list_of_spectra_plot_ax[j].set_xlabel('Wavelength(nm)')
+            self.list_of_spectra_plot_ax[j].set_ylabel('Intensity')
             self.list_of_spectra_plot_ax[j].set_title(self.spectra_dir_list[j].split('\\')[-1])
-            # self.list_of_spectra_plot_ax[j].set_title(str(self.iter))
-
-            # self.lineplot = FigureCanvasTkAgg(self.figure, self.specframe)
-            # self.lineplot.get_tk_widget().grid(row=1, column=0, columnspan=2)
             self.list_of_spectra_plots[j].canvas.draw()
-            # self.list_of_spectra_plots[j].canvas.flush_events()
-
+            # actually display the graph
             self.list_of_spectra_plot_lineplot[j].get_tk_widget().grid(row=1, column=0, columnspan=2)
-
+            # garbage collection?
             del dat
-            # uncomment below
-            # self.list_of_imgframe[j].grid(row=0, column=1)
-            # self.list_of_specframe[j].grid(row=0, column=0)
-            # self.list_of_rtnframe[j].grid(row=j, column=0)
-
-        # uncomment???
-        # self.canvasframe.grid(row=0, column=0)
-        # self.canvas.grid(row=0, column=0, sticky='nesw')
-        # self.scrollbar.grid(row=0, column=1, sticky='nse')
         self.iter += 1
-        # del self.rtnFrame
-        # del self.imgframe
-        # del self.specframe
 
-
-    def mouse_scroll(self, evt):
-        if evt.state == 0 :
-            # self.cnvs.yview_scroll(-1*(evt.delta), 'units') # For MacOS
-            self.cnvs.yview_scroll(int(-1*(evt.delta/120)), 'units') # For windows
-        if evt.state == 1:
-            # self.cnvs.xview_scroll(-1*(evt.delta), 'units') # For MacOS
-            self.cnvs.xview_scroll(int(-1*(evt.delta/120)), 'units') # For windows
 
     def onClosing(self):
+        """
+        Allows closing of windows to be cleaner versus tkinter's build in methods
+        :return: None
+        """
         self.window.destroy()
+
 if __name__ == '__main__':
     # imageViewer('C:\\Users\\Liam Droog\\Desktop\\controlTest\\Images', 'bmp')
     pass

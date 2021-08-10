@@ -95,6 +95,10 @@ class runcam:
         self.window.mainloop()
 
     def setTargetDirectory(self):
+        """
+        Sets the target directory for both images and spectras
+        :return:
+        """
         img_ipt = self.imgdirEntry.get()
         spec_ipt = self.spectradirEntry.get()
         if os.path.exists(img_ipt) and os.path.exists(spec_ipt) and img_ipt != spec_ipt:
