@@ -16,7 +16,7 @@ class imageViewer:
         # below is all gui setup
         self.window = tk.Toplevel(master=master)
         self.canvasframe = tk.Frame(master=self.window)
-        self.canvas = tk.Canvas(master=self.canvasframe, width=1000, height=800)
+        self.canvas = tk.Canvas(master=self.canvasframe, width=950, height=800)
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
         self.scrollbar = ttk.Scrollbar(master=self.window, orient='vertical', command=self.canvas.yview)
@@ -35,6 +35,7 @@ class imageViewer:
         self.list_of_spectra_plots = []
         self.list_of_spectra_plot_ax = []
         self.list_of_spectra_plot_lineplot = []
+        self.list_of_spectra_plot_ax_line = []
 
         # stuff for the image frames
         font = tk.font.Font(family='Helvetica', size=16, weight='bold')
@@ -51,6 +52,8 @@ class imageViewer:
             self.list_of_spectra_plot_ax.append(self.list_of_spectra_plots[i].add_subplot(111))
             self.list_of_spectra_plot_lineplot.append(FigureCanvasTkAgg(self.list_of_spectra_plots[i], self.list_of_specframe[i]))
 
+        for i in range(self.num_of_images):
+            self.list_of_spectra_plot_ax_line.append(self.list_of_spectra_plot_ax[i].plot(0,0, linewidth=0.65))
         # grid ALL the things!
         for i in range(self.num_of_images):
             self.list_of_spectra_headers[i].grid(row=1, column=0, columnspan=2)
@@ -183,43 +186,30 @@ class imageViewer:
             # for spectra of sample. NEEDS REWORK FOR SPECRA EH
 
             os.chdir(self.spectra_target_dir)
-            # self.list_of_spectra_plot_ax[j].clear()
+            self.list_of_spectra_plot_ax[j].clear()
 
             # self.spec_header = tk.Label(master=self.specframe, text=self.spectra_dir_list[j].split('\\')[-1], font=font)
             self.list_of_spectra_headers[j].config(text=self.spectra_dir_list[j].split('\\')[-1])
             # self.spec_header.grid(row=0, column=0, columnspan=2) # done
-            self.dat = np.loadtxt(spectra_dir_list[j], dtype=float, delimiter=';')
+            dat = np.loadtxt(self.spectra_dir_list[j], dtype=float, delimiter=';')
             # we need to have the plot shit in here!
-            # self.figure = plt.Figure(figsize=(5,4), dpi=100)
-            # self.ax = self.figure.add_subplot(111)
-            # self.ax.plot(self.dat[:,0], self.dat[:,1])
-            self.list_of_spectra_plot_ax[j].clear()
 
-            self.list_of_spectra_plot_ax[j].plot(self.dat[:,0], self.dat[:,1], linewidth=0.65)
-            # self.list_of_spectra_plot_ax[j].set_xdata(self.dat[:,0])
-            # self.list_of_spectra_plot_ax[j].set_ydata(self.dat[:,1])
+            self.list_of_spectra_plot_ax[j].plot(dat[:,0], dat[:,1], linewidth=0.65)
+            # self.list_of_spectra_plot_ax_line[j][0].set_xdata(dat[:,0])
+            # self.list_of_spectra_plot_ax_line[j][0].set_ydata(dat[:,1])
+            self.list_of_spectra_plot_ax[j].set_xlim([200, 900])
+            self.list_of_spectra_plot_ax[j].set_ylim([0, 1])
             self.list_of_spectra_plot_ax[j].set_title(self.spectra_dir_list[j].split('\\')[-1])
             # self.list_of_spectra_plot_ax[j].set_title(str(self.iter))
 
             # self.lineplot = FigureCanvasTkAgg(self.figure, self.specframe)
             # self.lineplot.get_tk_widget().grid(row=1, column=0, columnspan=2)
-            self.list_of_spectra_plot_lineplot[j].get_tk_widget().grid(row=1, column=0, columnspan=2)
             self.list_of_spectra_plots[j].canvas.draw()
+            # self.list_of_spectra_plots[j].canvas.flush_events()
 
-            # self.spec_image = Image.open('C:\\Users\\Liam Droog\\Desktop\\spectra.png')
-            # factor = 0.25
-            # self.spec_image = self.spec_image.resize((int(self.spec_image.size[0] * factor), int(self.spec_image.size[1] * factor)),
-            #                                Image.ANTIALIAS)
-            # self.spec_tkimage = ImageTk.PhotoImage(self.spec_image)
-            #
-            # self.spec_label = tk.Label(master=specframe, image=self.spec_tkimage)
-            # self.spec_label.image = self.spec_tkimage
-            # self.spec_label.grid(row=1, column=0, columnspan=2) # done
+            self.list_of_spectra_plot_lineplot[j].get_tk_widget().grid(row=1, column=0, columnspan=2)
 
-            # self.imgframe.grid(row=0, column=1)   # done
-            # self.specframe.grid(row=0, column=0)  # done
-            # self.rtnFrame.grid(row=j, column=0)   # done
-
+            del dat
             # uncomment below
             # self.list_of_imgframe[j].grid(row=0, column=1)
             # self.list_of_specframe[j].grid(row=0, column=0)
