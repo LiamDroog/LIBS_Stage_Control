@@ -31,7 +31,7 @@ class runcam:
         self.file_extension = 'png' # add a dropdown to select!
 
         self.imgdirEntry = tk.Entry(master=self.window, width=50)
-        self.imgdirEntry.insert(0, 'C:\\Users\\Liam Droog\\Desktop\\controlTest\\Images')
+        # self.imgdirEntry.insert(0, 'C:\\Users\\Liam Droog\\Desktop\\controlTest\\Images')
         self.imgdirEntry.grid(row=0, column=3, columnspan=2, sticky='ew')
 
         self.dirLbl = tk.Label(master=self.window, text='Full path of image image_directory:')
@@ -44,7 +44,7 @@ class runcam:
         self.browseDirBtn.grid(row=0, column=6, sticky='ew')
 
         self.spectradirEntry = tk.Entry(master=self.window, width=50)
-        self.spectradirEntry.insert(0, 'C:\\Users\\Liam Droog\\Desktop\\controlTest\\Spectra')
+        # self.spectradirEntry.insert(0, 'C:\\Users\\Liam Droog\\Desktop\\controlTest\\Spectra')
         self.spectradirEntry.grid(row=1, column=3, columnspan=2, sticky='ew')
 
         self.dirLbl = tk.Label(master=self.window, text='Full path of spectra image_directory:')

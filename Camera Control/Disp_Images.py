@@ -16,6 +16,7 @@ import os
 from PIL import ImageTk, Image
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
@@ -27,9 +28,16 @@ class imageViewer:
         # instatiate master window
         # below is all gui setup
         self.window = tk.Toplevel(master=master)
+        self.window.title('LibsGUI')
+        self.window.resizable(False, False)
         self.canvasframe = tk.Frame(master=self.window)
-        self.canvas = tk.Canvas(master=self.canvasframe, width=950, height=800)
+        self.canvas = tk.Canvas(master=self.canvasframe, width=1250, height=810)
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+        self.update_time_label = tk.Label(master=self.window, text='LibsGUI v1.0.1')
+
+        # breaks .grid layout. WTF
+        # self.canvas.bind('<Configure>', self.resize_canvas)
 
         self.scrollbar = ttk.Scrollbar(master=self.window, orient='vertical', command=self.canvas.yview)
         self.scrollFrame = ttk.Frame(master=self.canvas)
@@ -61,7 +69,7 @@ class imageViewer:
             self.list_of_sample_header.append(tk.Label(master=self.list_of_imgframe[i], font=font))
             self.list_of_sample_images_label.append(tk.Label(master=self.list_of_imgframe[i]))
             self.list_of_spectra_headers.append(tk.Label(master=self.list_of_specframe[i], font=font))
-            self.list_of_spectra_plots.append(plt.Figure(figsize=(5, 4), dpi=100))
+            self.list_of_spectra_plots.append(plt.Figure(figsize=(8, 4), dpi=100))
             self.list_of_spectra_plot_ax.append(self.list_of_spectra_plots[i].add_subplot(111))
             self.list_of_spectra_plot_lineplot.append(
                 FigureCanvasTkAgg(self.list_of_spectra_plots[i], self.list_of_specframe[i]))
@@ -80,9 +88,10 @@ class imageViewer:
             self.list_of_specframe[i].grid(row=0, column=0)
             self.list_of_rtnframe[i].grid(row=i, column=0)
 
-        self.canvasframe.grid(row=0, column=0)
+        self.canvasframe.grid(row=1, column=0, sticky='nsew')
         self.canvas.grid(row=0, column=0, sticky='nesw')
-        self.scrollbar.grid(row=0, column=1, sticky='nse')
+        self.scrollbar.grid(row=1, column=1, sticky='nse')
+        self.update_time_label.grid(row=0, column=0, sticky='ew')
 
         # Transfer imputs to class variables
         self.image_target_dir = image_target_dir
@@ -101,6 +110,10 @@ class imageViewer:
         self.window.protocol('WM_DELETE_WINDOW', self.onClosing)
         # L O O P
         self.window.mainloop()
+
+    def resize_canvas(self, event):
+        w, h = event.width - 100, event.height - 100
+        self.canvas.config(width=w, height=h)
 
     def pollDirectory(self):
         """
@@ -127,6 +140,7 @@ class imageViewer:
             print(e)
         finally:
             # ensure that running polldirectory takes <1000ms before changing!
+            self.update_time_label.config(text='LibsGUI v1.0.1 \nLast update time: ' + str(time.strftime("%H:%M:%S", time.localtime())))
             self.window.after(1000, self.pollDirectory)
 
     def _on_mousewheel(self, event):
