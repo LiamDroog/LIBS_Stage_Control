@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+
 class imageViewer:
     def __init__(self, image_target_dir, spectra_target_dir, file_extension, master=None):
         # self.window = tk.Tk(className='\Image Viewer')
@@ -33,7 +34,7 @@ class imageViewer:
         self.scrollbar = ttk.Scrollbar(master=self.window, orient='vertical', command=self.canvas.yview)
         self.scrollFrame = ttk.Frame(master=self.canvas)
         self.scrollFrame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox('all')))
-        self.canvas.create_window((0,0), window=self.scrollFrame, anchor='nw')
+        self.canvas.create_window((0, 0), window=self.scrollFrame, anchor='nw')
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
         # initialize lists to store entities later on so that we are nice to the RAM
@@ -60,13 +61,14 @@ class imageViewer:
             self.list_of_sample_header.append(tk.Label(master=self.list_of_imgframe[i], font=font))
             self.list_of_sample_images_label.append(tk.Label(master=self.list_of_imgframe[i]))
             self.list_of_spectra_headers.append(tk.Label(master=self.list_of_specframe[i], font=font))
-            self.list_of_spectra_plots.append(plt.Figure(figsize=(5,4),dpi=100))
+            self.list_of_spectra_plots.append(plt.Figure(figsize=(5, 4), dpi=100))
             self.list_of_spectra_plot_ax.append(self.list_of_spectra_plots[i].add_subplot(111))
-            self.list_of_spectra_plot_lineplot.append(FigureCanvasTkAgg(self.list_of_spectra_plots[i], self.list_of_specframe[i]))
+            self.list_of_spectra_plot_lineplot.append(
+                FigureCanvasTkAgg(self.list_of_spectra_plots[i], self.list_of_specframe[i]))
 
         # initialize plots so that we can update them later
         for i in range(self.num_of_images):
-            self.list_of_spectra_plot_ax_line.append(self.list_of_spectra_plot_ax[i].plot(0,0, linewidth=0.65))
+            self.list_of_spectra_plot_ax_line.append(self.list_of_spectra_plot_ax[i].plot(0, 0, linewidth=0.65))
         # grid ALL the things!
         for i in range(self.num_of_images):
             self.list_of_spectra_headers[i].grid(row=1, column=0, columnspan=2)
@@ -78,9 +80,6 @@ class imageViewer:
             self.list_of_specframe[i].grid(row=0, column=0)
             self.list_of_rtnframe[i].grid(row=i, column=0)
 
-
-            
-
         self.canvasframe.grid(row=0, column=0)
         self.canvas.grid(row=0, column=0, sticky='nesw')
         self.scrollbar.grid(row=0, column=1, sticky='nse')
@@ -88,6 +87,8 @@ class imageViewer:
         # Transfer imputs to class variables
         self.image_target_dir = image_target_dir
         self.spectra_target_dir = spectra_target_dir
+        self.most_recent_spectra = None
+        self.most_recent_image = None
         self.file_ext = file_extension
         self.current_display = None
         self.img_dir_list = []
@@ -128,7 +129,6 @@ class imageViewer:
             # ensure that running polldirectory takes <1000ms before changing!
             self.window.after(1000, self.pollDirectory)
 
-
     def _on_mousewheel(self, event):
         """
         Scrolls the window when you use the scrollwheel
@@ -150,10 +150,16 @@ class imageViewer:
         """
 
         # get 5 most recent files and reverse list so that the most recent is index 0
-        self.img_dir_list = img_dir_list[-5:]
+        self.img_dir_list = img_dir_list[-self.num_of_images:]
         self.img_dir_list.reverse()
-        self.spectra_dir_list = spectra_dir_list[-5:]
+        self.spectra_dir_list = spectra_dir_list[-self.num_of_images:]
         self.spectra_dir_list.reverse()
+
+        if self.most_recent_spectra == self.spectra_dir_list[0] and self.most_recent_image == self.img_dir_list[0]:
+            return
+        else:
+            self.most_recent_image = self.img_dir_list[0]
+            self.most_recent_spectra = self.spectra_dir_list[0]
 
         for j, i in enumerate(self.img_dir_list):
             # change dir to image dir
@@ -164,13 +170,13 @@ class imageViewer:
             # open and scale image, then insert into label
             self.sample_image = Image.open(i)
             factor = 0.35
-            self.sample_image = self.sample_image.resize((int(self.sample_image.size[0] * factor), int(self.sample_image.size[1] * factor)),
-                                           Image.ANTIALIAS)
+            self.sample_image = self.sample_image.resize(
+                (int(self.sample_image.size[0] * factor), int(self.sample_image.size[1] * factor)),
+                Image.ANTIALIAS)
             self.sample_tkimage = ImageTk.PhotoImage(self.sample_image)
 
             self.list_of_sample_images_label[j].config(image=self.sample_tkimage)
             self.list_of_sample_images_label[j].image = self.sample_tkimage
-
 
             # Change dir to spectra dir
             os.chdir(self.spectra_target_dir)
@@ -181,7 +187,7 @@ class imageViewer:
             # pull data from target file
             dat = np.loadtxt(self.spectra_dir_list[j], dtype=float, delimiter=';')
             # plot
-            self.list_of_spectra_plot_ax[j].plot(dat[:,0], dat[:,1], linewidth=0.65)
+            self.list_of_spectra_plot_ax[j].plot(dat[:, 0], dat[:, 1], linewidth=0.65)
             # Set plot-oriented stuff
             self.list_of_spectra_plot_ax[j].set_xlim([200, 1000])
             self.list_of_spectra_plot_ax[j].set_ylim([0, 1])
@@ -195,13 +201,13 @@ class imageViewer:
             del dat
         self.iter += 1
 
-
     def onClosing(self):
         """
         Allows closing of windows to be cleaner versus tkinter's build in methods
         :return: None
         """
         self.window.destroy()
+
 
 if __name__ == '__main__':
     # imageViewer('C:\\Users\\Liam Droog\\Desktop\\controlTest\\Images', 'bmp')
